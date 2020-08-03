@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import { FormDataOptions } from '../options/settings-form'
+import { ParseResult } from 'papaparse'
 
 export interface DataFramePoint {
   x: number,
@@ -9,6 +10,7 @@ export interface DataFramePoint {
 export interface GetCosinorDataBody {
   file?: string,
   command: CosinorCommand
+  cosinorType: CosinorType
   options: FormDataOptions,
 }
 
@@ -17,9 +19,15 @@ export enum CosinorCommand {
   FIT_GROUP = 'fit_group',
 }
 
+
+export enum CosinorType {
+  COSINOR = 'general cosinor',
+  COSINOR1 = 'cosinor1',
+}
+
 export interface Graph {
   command: CosinorCommand,
-  data: string,
+  data: string[],
 }
 
 export type GetCosinorDataResponse = DataFramePoint[]

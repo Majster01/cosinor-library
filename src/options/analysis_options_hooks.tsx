@@ -1,8 +1,8 @@
 import React from 'react'
 import { AnalysisOptionsProps, SetOptions } from "./analysis_options"
-import { CosinorCommand } from '../services/api'
+import { CosinorCommand, CosinorType } from '../services/api'
 import { FormDataOptions } from './settings-form'
-import { Checkbox, TextField, MenuItem, FormLabel, FormControlLabel } from '@material-ui/core'
+import { Checkbox, TextField, MenuItem, FormControlLabel } from '@material-ui/core'
 
 export enum PeriodogramPeriodType {
   PER = 'per',
@@ -10,16 +10,24 @@ export enum PeriodogramPeriodType {
 }
 
 export interface PeriodogramOptions {
-  periodType: PeriodogramPeriodType,
-  logScale: boolean,
-  prominent: boolean,
-  maxPeriod: number,
+  [CosinorType.COSINOR]: {
+    periodType: PeriodogramPeriodType,
+    logScale: boolean,
+    prominent: boolean,
+    maxPeriod: number,
+  },
+  [CosinorType.COSINOR1]: {},
 }
 
 
 export interface FitGroupOptions {
-  components: number,
-  period: number,
+  [CosinorType.COSINOR]: {
+    components: number,
+    period: number,
+  },
+  [CosinorType.COSINOR1]: {
+    period: number,
+  },
 }
 
 enum MultipleOptionInputKeys {
@@ -127,10 +135,13 @@ const parseEventValue = (optionValue: any, event: React.ChangeEvent<HTMLInputEle
 
 export const getAnalysisOptionsHook = (
   command: CosinorCommand,
+  type: CosinorType,
   options: FormDataOptions,
   setOptions: SetOptions,
 ): JSX.Element[] => {
-  const commandOptionsOptions = options[command]
+  console.log('command', command, 'type', type)
+  console.log('options', options, options[command])
+  const commandOptions = options[command][type]
 
   const callback: GetOnOptionChange = (key: string, value: any) => (event: React.ChangeEvent<HTMLInputElement>) => {
     
@@ -141,11 +152,11 @@ export const getAnalysisOptionsHook = (
 
     console.log('OnChange', key, value, newOptions)
 
-    setOptions(command, newOptions)
+    setOptions(command, type, newOptions)
   }
 
-  return Object.keys(commandOptionsOptions).reduce((list: JSX.Element[], key: string): JSX.Element[] => {
-    const element: JSX.Element | null = optionToInput(key, commandOptionsOptions[key as keyof typeof commandOptionsOptions], callback)
+  return Object.keys(commandOptions).reduce((list: JSX.Element[], key: string): JSX.Element[] => {
+    const element: JSX.Element | null = optionToInput(key, commandOptions[key as keyof typeof commandOptions], callback)
 
     if (element !== null) {
       return [...list, element]
