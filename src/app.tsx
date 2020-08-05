@@ -1,16 +1,15 @@
 import React from 'react';
-import { DataContainer } from './data-container';
+import { MainLayout } from './layout/main_layout';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 
 function App() {
   return (
-    <div>
-      <header className="App-header">
-        Cosinor library
-      </header>
+    <Provider store={store}>
       <main>
-        <DataContainer />
+        <MainLayout />
       </main>
-    </div>
+    </Provider>
   );
 }
 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Graph, CosinorCommand, CosinorType } from './services/api'
 import { SettingsForm } from './options/settings-form'
+import { AnalysisOptions } from './components/data_selection/generate_data/generate_data_form'
+import { DataSelection } from './components/data_selection/data_selection'
 
 export type CommandGraphData = {
   [key in CosinorCommand]: CosinorTypeGraphData
@@ -40,7 +42,10 @@ export const DataContainer: React.FC = () => {
 
   console.log('DATA', data.periodogram["general cosinor"])
 
+
+
   return <div>
+    <DataSelection />
     <SettingsForm onSubmitCallback={onSubmitCallback} onCommandChange={setCommand} onCosinorTypeChange={setCosinorType} />
     { data[command][cosinorType].map((graph: Graph) => <img src={`data:image/png;base64,${graph.data}`} alt='graph' />) }
   </div>

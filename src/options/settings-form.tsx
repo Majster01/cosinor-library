@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { getCosinorData, GetCosinorDataBody, CosinorCommand, CosinorType } from '../services/api'
+import { RunAnalysisBody, CosinorCommand, CosinorType, runCosinorAnalysis } from '../services/api'
 import { UploadFile } from '../upload-file'
 import { Button, TextField, MenuItem } from '@material-ui/core'
 import { AnalysisOptions } from './analysis_options'
@@ -136,16 +136,19 @@ export const SettingsForm: React.FC<SettingsFormProps> = (props: SettingsFormPro
     // console.log('PARSED FILE', file)
     // console.log('PARSED FILE TYPE', typeof file)
 
-    const getCosinorDataBody: GetCosinorDataBody = {
-      file: formData.file,
-      command: formData.command,
-      cosinorType: formData.cosinorType,
-      options: formData.options,
+    if (formData.file) {
+
+      const getCosinorDataBody: RunAnalysisBody = {
+        data: formData.file,
+        command: formData.command,
+        cosinorType: formData.cosinorType,
+        options: formData.options,
+      }
+  
+      const cosinorData = await runCosinorAnalysis(getCosinorDataBody)
+  
+      onSubmitCallback(formData.command, formData.cosinorType, cosinorData)
     }
-
-    const cosinorData = await getCosinorData(getCosinorDataBody)
-
-    onSubmitCallback(formData.command, formData.cosinorType, cosinorData)
   }
 
   return (
