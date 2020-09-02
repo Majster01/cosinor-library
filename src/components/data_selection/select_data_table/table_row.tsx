@@ -1,20 +1,19 @@
 import React from 'react'
 
 import { useStyles } from "./styles";
-import { TableHead, TableRow, TableCell, Checkbox } from "@material-ui/core";
+import { TableRow, TableCell, Checkbox } from "@material-ui/core";
 
 interface EnhancedTableRowProps {
-  onSelect(i: number): void
+  onSelect(row: string[]): void
   isSelected?: boolean
   values: string[]
-  id: number
   key: string | number
   cellsCount: number
 }
 
 export const EnhancedTableRow: React.FC<EnhancedTableRowProps> = (props: EnhancedTableRowProps) => {
   const classes = useStyles()
-  const { id, onSelect, isSelected, values, key, cellsCount } = props
+  const {  onSelect, isSelected, values, key, cellsCount } = props
 
   if (values.length !== cellsCount) {
     return null
@@ -24,15 +23,19 @@ export const EnhancedTableRow: React.FC<EnhancedTableRowProps> = (props: Enhance
     <TableRow
       className={classes.row}
       hover
-      onClick={(event) => onSelect(id)}
+      onClick={(event) => onSelect(values)}
       role="checkbox"
       aria-checked={isSelected}
       tabIndex={-1}
       key={key}
       selected={isSelected}
+      classes={{
+        selected: classes.selectedRow
+      }}
     >
       <TableCell padding="checkbox">
         <Checkbox
+          color='primary'
           checked={isSelected}
         />
       </TableCell>

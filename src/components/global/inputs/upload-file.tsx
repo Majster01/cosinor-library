@@ -13,11 +13,13 @@ export const UploadFile: React.FC<UploadFileProps> = (props: UploadFileProps) =>
 
   const inputRef: RefObject<HTMLInputElement> = React.createRef()
 
+  const refIsDefined: boolean = inputRef.current !== null
+
   console.log('inputRef.current', inputRef.current)
   useEffect(() => {
     if (inputRef.current !== null)
-    inputRef.current.accept = '.csv'
-  }, [inputRef.current !== null])
+      inputRef.current.accept = '.csv,.xlsx'
+  }, [inputRef, refIsDefined])
 
   return (
     <TextField

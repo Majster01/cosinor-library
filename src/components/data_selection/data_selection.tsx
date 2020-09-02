@@ -1,60 +1,41 @@
-import React, { useState } from 'react'
-import { AnalysisOptions } from './generate_data/generate_data_form'
+import React from 'react'
+import { GenerateTestDataOptions } from './generate_data/generate_data_form'
 import { CheckboxTable } from './select_data_table/checkbox_table'
 import { UploadDataForm } from './upload_data/upload_data_form'
 import { useStyles } from './styles'
 import { Button } from '@material-ui/core'
-import { setCsvData } from '../../store/options_slice'
-import { useDispatch } from 'react-redux'
-import { unparse } from 'papaparse'
+import { FileType } from '../../store/options_slice'
+import { useSelector } from 'react-redux'
+import { FlowStepperState, useFlowStepperContext } from '../global/stepper/flow_stepper_context'
+import { RootState } from '../../store/store'
+import { CheckboxXLSXTable } from './select_data_table/checkbox_xlsx_table'
 
 export const DataSelection: React.FC = () => {
 
   const classes = useStyles()
   
-  const [data, setData] = useState<string[][] | null>(null)
-  const [selectedData, setSelectedData] = useState<string[][] | null>(null)
+  const fileType: FileType | undefined = useSelector((state: RootState) => state.options.fileType)
+  const dataIsSelected: boolean = useSelector((state: RootState) => fileType
+    ? state.options[fileType].data !== undefined && state.options[fileType].selectedData !== undefined
+    : false
+  )
 
-  const dispatch = useDispatch()
+  console.log('fileType', fileType)
+  console.log('dataIsSelected', dataIsSelected)
 
-  const onDataCallback = (newData: string[][]) => {
-    setData(newData)
-    setSelectedData(newData)
-  }
-
-  const onSelectCallback = (selectedDataKeys: number[]) => {
-    if (data !== null) {
-      console.log('onSelectCallback')
-      const newSelectedData = selectedDataKeys.map((key: number) => data[key])
-  
-      setSelectedData(newSelectedData)
-    }
-  }
-
-  console.log('selectedData', selectedData)
-
-  const onSubmitDataSelection = () => {
-
-    if (selectedData !== null) {
-      const csvStringData: string = unparse(selectedData, { delimiter: '\t'})
-
-      dispatch(setCsvData({
-        csvStringData,
-        csvTableData: selectedData
-      }))
-    }
-  }
+  const flowStepperContext: FlowStepperState = useFlowStepperContext()
 
   return (
     <div className={classes.dataSelectionWrapper}>
-      <div className={classes.header}>Select data for analysis</div>
+      <div className={classes.header}>Generate or upload data for analysis</div>
       <div className={classes.dataSelectionFormWrapper}>
-        <AnalysisOptions onDataCallback={onDataCallback} />
-        <UploadDataForm onDataCallback={onDataCallback} />
+        <GenerateTestDataOptions />
+        <UploadDataForm />
       </div>
-      {data && <CheckboxTable data={data} onSelectCallback={onSelectCallback} />}
-      <div>
-        <Button disabled={selectedData === null} onClick={onSubmitDataSelection}>Continue</Button>
+      {fileType === FileType.CSV && dataIsSelected && <CheckboxTable />}
+      {fileType === FileType.XLSX && dataIsSelected && <CheckboxXLSXTable />}
+      <div className={classes.controlButton}>
+        <Button color='primary' variant='contained' disabled={!dataIsSelected} onClick={flowStepperContext.stepNavigationNext}>Continue</Button>
       </div>
     </div>
   )

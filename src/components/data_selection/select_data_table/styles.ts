@@ -22,7 +22,6 @@ export const useStyles = makeStyles((theme: Theme) => ({
     width: 1,
   },
   table: {
-    maxHeight: '400px',
     maxWidth: '100%',
     width: 'fit-content',
     display: 'block',
@@ -48,5 +47,14 @@ export const useStyles = makeStyles((theme: Theme) => ({
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     wordBreak: 'normal',
+  },
+  selectedRow: {
+    '&.Mui-selected': {
+      backgroundColor: 'rgba(63, 81, 181, 0.08)',
+
+      '&:hover': {
+        backgroundColor: 'rgba(63, 81, 181, 0.16)',
+      }
+    }
   }
 }))

@@ -1,38 +1,59 @@
-import React from 'react'
-import { CosinorCommand, CosinorType } from '../../../services/api'
-import { MenuItem } from '@material-ui/core'
+import { CosinorCommand, CosinorType, FitType } from '../../../services/api'
 import { Dispatch } from 'redux'
 import { setCosinorType } from '../../../store/options_slice'
+import { SelectInputOption } from '../../global/inputs/select_input'
 
 export interface GetGeneralOptionsHookParams {
   cosinorType: CosinorType,
   cosinorCommand: CosinorCommand,
+  fitType: FitType
   dispatch: Dispatch,
 }
 export interface GetGeneralOptionsHookResponse {
-  cosinorTypeOptions: JSX.Element[],
-  cosinorCommandOptions: JSX.Element[]
+  cosinorTypeOptions: SelectInputOption[],
+  cosinorCommandOptions: SelectInputOption[]
+  fitTypeOptions: SelectInputOption[]
 }
 
-const GeneralCosinorMenuItem = (
-  <MenuItem key={CosinorType.COSINOR} value={CosinorType.COSINOR}>General cosinor</MenuItem>
-)
+const generalCosinorMenuItem: SelectInputOption = {
+  label: 'General cosinor',
+  value: CosinorType.COSINOR
+}
 
-const Cosinor1MenuItem = (
-  <MenuItem key={CosinorType.COSINOR1} value={CosinorType.COSINOR1}>Cosinor 1</MenuItem>
-)
+const cosinor1MenuItem: SelectInputOption = {
+  label: 'Cosinor 1',
+  value: CosinorType.COSINOR1
+}
 
-const PeriodogramMenuItem = (
-  <MenuItem key={CosinorCommand.PERIODOGRAM} value={CosinorCommand.PERIODOGRAM}>Periodogram</MenuItem>
-)
+const periodogramMenuItem: SelectInputOption = {
+  label: 'Periodogram',
+  value: CosinorCommand.PERIODOGRAM
+}
 
-const RegressionMenuItem = (
-  <MenuItem key={CosinorCommand.FIT_GROUP} value={CosinorCommand.FIT_GROUP}>Regression</MenuItem>
-)
+const regressionMenuItem: SelectInputOption = {
+  label: 'Regression',
+  value: CosinorCommand.FIT_GROUP
+}
+
+const comparisonMenuItem: SelectInputOption = {
+  label: 'Comparison',
+  value: CosinorCommand.COMPARISON
+}
+
+const populationMenuItem: SelectInputOption = {
+  label: 'Population fit',
+  value: FitType.POPULATION
+}
+
+const independentMenuItem: SelectInputOption = {
+  label: 'Independent fit',
+  value: FitType.INDEPENDENT
+}
 
 export const useGetGeneralOptionsHook = ({
   cosinorCommand,
   cosinorType,
+  fitType,
   dispatch,
 }: GetGeneralOptionsHookParams): GetGeneralOptionsHookResponse | null => {
   if (cosinorCommand === CosinorCommand.PERIODOGRAM) {
@@ -41,17 +62,35 @@ export const useGetGeneralOptionsHook = ({
     }
 
     return {
-      cosinorCommandOptions: [PeriodogramMenuItem, RegressionMenuItem],
-      cosinorTypeOptions: [GeneralCosinorMenuItem]
+      cosinorCommandOptions: [periodogramMenuItem, regressionMenuItem, comparisonMenuItem],
+      cosinorTypeOptions: [generalCosinorMenuItem],
+      fitTypeOptions: []
     }
   }
 
-  if (cosinorCommand === CosinorCommand.FIT_GROUP) {
+  if (cosinorCommand === CosinorCommand.COMPARISON) {
+    if (cosinorType === CosinorType.COSINOR && fitType === FitType.POPULATION) {
+      dispatch(setCosinorType(CosinorType.COSINOR1))
+
+      return {
+        cosinorCommandOptions: [periodogramMenuItem, regressionMenuItem, comparisonMenuItem],
+        cosinorTypeOptions: [cosinor1MenuItem],
+        fitTypeOptions: [independentMenuItem, populationMenuItem]
+      }
+    }
+
     return {
-      cosinorCommandOptions: [PeriodogramMenuItem, RegressionMenuItem],
-      cosinorTypeOptions: [GeneralCosinorMenuItem, Cosinor1MenuItem]
+      cosinorCommandOptions: [periodogramMenuItem, regressionMenuItem, comparisonMenuItem],
+      cosinorTypeOptions: [generalCosinorMenuItem, cosinor1MenuItem],
+      fitTypeOptions: [independentMenuItem, populationMenuItem]
     }
   }
 
-  return null
+  else {
+    return {
+      cosinorCommandOptions: [periodogramMenuItem, regressionMenuItem, comparisonMenuItem],
+      cosinorTypeOptions: [generalCosinorMenuItem, cosinor1MenuItem],
+      fitTypeOptions: [independentMenuItem, populationMenuItem],
+    }
+  }
 }

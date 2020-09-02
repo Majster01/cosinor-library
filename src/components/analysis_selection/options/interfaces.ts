@@ -1,10 +1,14 @@
-import { Graph } from "../../../services/api";
+import { CosinorType, CosinorCommand, PythonResponse, FitType } from "../../../services/api";
 
 export interface GeneralOptionProps {
-  onOptionsSubmit(graphs: Graph[]): void
+  onOptionsSubmit(response: PythonResponse): void
+  cosinorType: CosinorType
+  cosinorCommand: CosinorCommand
+  fitType: FitType
 }
 
 export enum PeriodogramPeriodType {
-  PER = 'per',
-  WELCH = 'welch'
+  FOURIER = 'per',
+  WELCH = 'welch',
+  LOMB_SCARGLE = 'lomb_scargle',
 }

@@ -22,6 +22,7 @@ export const EnhancedTableHead = (props: EnhancedTableProps) => {
         <TableCell padding="checkbox">
           <Checkbox
             indeterminate={numSelected > 1 && numSelected < rowCount}
+            color='primary'
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{ 'aria-label': 'select all desserts' }}

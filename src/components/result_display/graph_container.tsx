@@ -1,14 +1,15 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
-import { Graph } from '../../services/api'
+import { useStyles } from './styles'
+import { ResultsContainerProps } from './result_display'
 
-export const GraphContainer = () => {
-  const graphs: Graph[] = useSelector((state: RootState) => state.options.graphs)
+export const GraphContainer: React.FC<ResultsContainerProps> = (props: ResultsContainerProps) => {
+  const classes = useStyles()
 
   return (
-    <div>
-      { graphs.map((graph: Graph) => <img src={`data:image/png;base64,${graph.data}`} alt='graph' />) }
+    <div className={classes.wrapper}>
+      <div className={classes.container}>
+        { props.resultsData !== undefined && props.resultsData.graphs.map((graph: string) => <img src={`data:image/png;base64,${graph}`} alt='graph' />) }
+      </div>
     </div>
   )
 }

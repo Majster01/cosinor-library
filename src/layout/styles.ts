@@ -1,24 +1,22 @@
 import { makeStyles, Theme } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme: Theme) => ({
-  backdrop: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: theme.palette.background.default,
+  paper: {
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: theme.palette.background.paper,
+    overflowY: 'auto',
   },
 
   container: {
-    maxWidth: '1024px',
-    height: '100vh',
-    margin: '0 auto',
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(5),
+    padding: theme.spacing(5, 5, 0, 5),
     display: 'flex',
     alignItems: 'center',
-    flexDirection: 'column',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
 
     '& *': {
       fontFamily: 'Roboto, sans-serif'
     }
-  }
+  },
 }))

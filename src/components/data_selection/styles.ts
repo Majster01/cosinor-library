@@ -17,4 +17,10 @@ export const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-around'
   },
+  controlButton: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    margin: theme.spacing(4, 0)
+  }
 }))
