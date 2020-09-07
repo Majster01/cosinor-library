@@ -9,8 +9,6 @@ export const AnalysisSelection: React.FC = () => {
 
   const classes = useStyles()
 
-  console.log('options', options)
-
   return (
     <div className={classes.container}>
       <div>

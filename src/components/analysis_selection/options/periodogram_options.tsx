@@ -12,11 +12,12 @@ import { CheckboxInput } from '../../global/inputs/checkbox_input';
 import { Button } from '@material-ui/core';
 import { useStyles } from './styles';
 import { FileType } from '../../../store/options_slice';
+import { getFileStringByType, CSVFile, hasReplicates } from '../../../utils/csv_file_helpers';
+import { WorkBook } from 'xlsx/types';
 
 export interface PeriodogramGeneralCosinorOptions {
   periodType: PeriodogramPeriodType,
   logScale: boolean,
-  prominent: boolean,
   maxPeriod: number,
   minPeriod: number,
 }
@@ -24,7 +25,6 @@ export interface PeriodogramGeneralCosinorOptions {
 const defaultPeriodogramGeneralCosinorOptions: PeriodogramGeneralCosinorOptions = {
   periodType: PeriodogramPeriodType.FOURIER,
   logScale: false,
-  prominent: false,
   maxPeriod: 24,
   minPeriod: 2,
 }
@@ -36,20 +36,23 @@ export const PeriodogramOptionsForm: React.FC<GeneralOptionProps> = (props: Gene
   const [state, setState] = useState<PeriodogramGeneralCosinorOptions>(defaultPeriodogramGeneralCosinorOptions)
 
   const fileType: FileType | undefined = useSelector((state: RootState) => state.options.fileType)
-  const selectedDataFile: string | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].file : undefined)
+  const selectedData: CSVFile | WorkBook | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].selectedData : undefined)
 
   const flowStepperContext: FlowStepperState = useFlowStepperContext()
 
   const onSubmit = async () => {
-    if (selectedDataFile !== undefined) {
+    if (selectedData !== undefined && fileType !== undefined) {
+
+      const hasXlsxReplicates: boolean = fileType === FileType.XLSX ? hasReplicates(selectedData as WorkBook) : false
+      const fileString: string = getFileStringByType(fileType, selectedData)
 
       const body = {
         fileType,
-        data: selectedDataFile,
+        hasXlsxReplicates,
+        data: fileString,
         cosinorType: CosinorType.COSINOR,
         per_type: state.periodType,
         logscale: state.logScale,
-        prominent: state.prominent,
         max_per: state.maxPeriod,
         min_per: state.minPeriod,
       }
@@ -104,14 +107,7 @@ export const PeriodogramOptionsForm: React.FC<GeneralOptionProps> = (props: Gene
     }))
   }
 
-  const onProminentChange = (prominent: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      prominent,
-    }))
-  }
-
-  const disabled: boolean = selectedDataFile === undefined
+  const disabled: boolean = selectedData === undefined || fileType === undefined
 
   return <div>
     <SelectInput
@@ -126,12 +122,6 @@ export const PeriodogramOptionsForm: React.FC<GeneralOptionProps> = (props: Gene
       label='Log scale'
       value={state.logScale}
       onChange={onLogScaleChange}
-    />
-    <CheckboxInput
-      key='prominent'
-      label='Prominent'
-      value={state.prominent}
-      onChange={onProminentChange}
     />
     <NumberInput
       key='minPeriod'

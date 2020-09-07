@@ -1,5 +1,9 @@
 import { makeStyles, Theme } from "@material-ui/core";
 
+interface StyleProps {
+  key: string
+}
+
 export const useStyles = makeStyles((theme: Theme) => ({
   root: {
     width: '100%',
@@ -38,6 +42,10 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
   row: {
     minWidth: '100%',
+
+    '&:hover': {
+      backgroundColor: 'rgba(63, 81, 181, 0.16)',
+    }
   },
   nameCell: {
     minWidth: '100px'
@@ -55,6 +63,23 @@ export const useStyles = makeStyles((theme: Theme) => ({
       '&:hover': {
         backgroundColor: 'rgba(63, 81, 181, 0.16)',
       }
+    },
+  },
+
+  selectedRowGroup: {
+    backgroundColor: 'rgba(63, 81, 181, 0.08)',
+
+    '&:hover': {
+      backgroundColor: 'rgba(63, 81, 181, 0.16)',
     }
+  },
+
+  xlsxRow: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+
+  paddingNormal: {
+    padding: theme.spacing(2)
   }
 }))

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CosinorCommand, CosinorType, PythonResponse, FitType } from '../services/api'
 import { WorkBook } from 'xlsx/types'
+import { CSVFile } from '../utils/csv_file_helpers'
 
 export enum FileType {
   CSV = 'text/csv',
@@ -15,14 +16,13 @@ export interface OptionsSlice {
   fitType: FitType
   responseData?: PythonResponse
   fileType?: FileType
-  [FileType.CSV]: DataFileMeta<string[][], string>
-  [FileType.XLSX]: DataFileMeta<WorkBook, string>
+  [FileType.CSV]: DataFileMeta<CSVFile>
+  [FileType.XLSX]: DataFileMeta<WorkBook>
 }
 
-export interface DataFileMeta<D, F> {
+export interface DataFileMeta<D> {
   data?: D
   selectedData?: D
-  file?: F
 }
 
 const initialState: OptionsSlice = {
@@ -54,7 +54,6 @@ const optionsSlice = createSlice({
       state.csvTableData = action.payload.csvTableData
     },
     setCommand (state, action: PayloadAction<CosinorCommand>) {
-      console.log('SET COMMAND', action.payload)
       state.command = action.payload
     },
     setCosinorType (state, action: PayloadAction<CosinorType>) {
@@ -69,13 +68,13 @@ const optionsSlice = createSlice({
     setFileType (state, action: PayloadAction<FileType>) {
       state.fileType = action.payload
     },
-    setCSVMetaData (state, action: PayloadAction<DataFileMeta<string[][], string>>) {
+    setCSVMetaData (state, action: PayloadAction<DataFileMeta<CSVFile>>) {
       state[FileType.CSV] = {
         ...state[FileType.CSV],
         ...action.payload,
       }
     },
-    setXLSXMetaData (state, action: PayloadAction<DataFileMeta<WorkBook, string>>) {
+    setXLSXMetaData (state, action: PayloadAction<DataFileMeta<WorkBook>>) {
       state[FileType.XLSX] = {
         ...state[FileType.XLSX],
         ...action.payload,

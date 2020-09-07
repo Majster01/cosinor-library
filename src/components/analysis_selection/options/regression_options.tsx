@@ -11,6 +11,8 @@ import { Button } from '@material-ui/core';
 import { useStyles } from './styles';
 import { LoadingButton } from '../../global/loading_button/loading_button';
 import { FileType } from '../../../store/options_slice';
+import { getFileStringByType, CSVFile, hasReplicates } from '../../../utils/csv_file_helpers';
+import { WorkBook } from 'xlsx/types';
 
 export interface RegressionIndependentFitOptions {
   components: number | null,
@@ -34,18 +36,20 @@ export const RegressionOptionsForm: React.FC<GeneralOptionProps> = (props: Gener
   const [state, setState] = useState<RegressionIndependentFitOptions>(defaultRegressionIndependentFitOptions)
 
   const fileType: FileType | undefined = useSelector((state: RootState) => state.options.fileType)
-  const selectedDataFile: string | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].file : undefined)
+  const selectedData: CSVFile | WorkBook | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].selectedData : undefined)
 
   const flowStepperContext: FlowStepperState = useFlowStepperContext()
 
-  console.log('selectedDataCsv', selectedDataFile)
-
   const onSubmit = async () => {
-    if (selectedDataFile !== undefined) {
+    if (selectedData !== undefined && fileType !== undefined) {
+
+      const hasXlsxReplicates: boolean = fileType === FileType.XLSX ? hasReplicates(selectedData as WorkBook) : false
+      const fileString: string = getFileStringByType(fileType, selectedData)
 
       const body = {
         fileType,
-        data: selectedDataFile,
+        hasXlsxReplicates,
+        data: fileString,
         cosinorType: cosinorType,
         n_components: state.components ?? [1,2,3],
         period: state.period,
@@ -89,6 +93,8 @@ export const RegressionOptionsForm: React.FC<GeneralOptionProps> = (props: Gener
       period,
     }))
   }
+  const disabled: boolean = selectedData === undefined || fileType === undefined
+
 
   return <div>
     {cosinorType === CosinorType.COSINOR && <SelectInput
@@ -108,7 +114,7 @@ export const RegressionOptionsForm: React.FC<GeneralOptionProps> = (props: Gener
 
     <div className={classes.actionButtons}>
       <Button color='primary' variant='outlined' onClick={flowStepperContext.stepNavigationBack}>Reselect data</Button>
-      <LoadingButton color='primary' variant='contained' onClick={onSubmit}>Submit</LoadingButton>
+      <LoadingButton color='primary' variant='contained' disabled={disabled} onClick={onSubmit}>Submit</LoadingButton>
     </div>
   </div>
 }

@@ -20,9 +20,6 @@ export const DataSelection: React.FC = () => {
     : false
   )
 
-  console.log('fileType', fileType)
-  console.log('dataIsSelected', dataIsSelected)
-
   const flowStepperContext: FlowStepperState = useFlowStepperContext()
 
   return (

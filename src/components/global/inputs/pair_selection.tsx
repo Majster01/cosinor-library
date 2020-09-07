@@ -1,21 +1,56 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/store'
 import { CheckboxInput } from './checkbox_input'
 import { Button, InputLabel, FormControl } from '@material-ui/core'
 import { useStyles } from './styles'
 import { FileType } from '../../../store/options_slice'
+import { CSVFile, CSVMeasurements, isNestedArray, getXLSXReplicaCount } from '../../../utils/csv_file_helpers'
+import { FitType } from '../../../services/api'
+import { WorkBook, WorkSheet } from 'xlsx/types'
+import { getXLSXSpan, XLSXSpan, XLSXSheetSpan, range } from '../../data_selection/select_data_table/checkbox_xlsx_table'
 
-const getTestNames = (data: string[][]): string[] => {
-  const [, ...rest] = data
-
-  return rest.reduce((list: string[], row: string[]) => {
-    if (row[0] !== '') {
-      return [...list, row[0]]
+const getCSVTestNames = (fitType: FitType, data: CSVMeasurements): string[] => (
+  fitType === FitType.POPULATION
+    ? Object.keys(data)
+    : Object.values(data).reduce<string[]>((names: string[], measurement: string[] | string[][]): string[] => {
+    if (!isNestedArray(measurement)) {
+      return [...names, (measurement[0] as string)]
     }
-
-    return list
+    
+    return [
+      ...names,
+      ...(measurement as string[][]).map((data: string[]) => data[0])
+    ]
   }, [])
+)
+
+const getXLSXTestNames = (fitType: FitType, data: WorkBook): string[] => {
+  if (fitType === FitType.POPULATION) {
+    return data.SheetNames
+  }
+
+  const spans: XLSXSpan = getXLSXSpan(data)
+
+  return data.SheetNames.reduce<string[]>((replicateNames: string[], sheetName: string): string[] => {
+    const sheet: WorkSheet =  data.Sheets[sheetName]
+
+    const span: XLSXSheetSpan = spans[sheetName]
+    
+    const count: number = getXLSXReplicaCount(sheet, span)
+
+    const newReplicateNames: string[] = range(count, 1).map((num: number) => `${sheetName}_rep${num}`)
+
+    return [...replicateNames, ...newReplicateNames]
+  }, [])
+}
+
+const getNames = (fileType: FileType, fitType: FitType, data: CSVFile | WorkBook): string[] => {
+  if (fileType === FileType.CSV) {
+    return getCSVTestNames(fitType, (data as CSVFile).measurements)
+  }
+
+  return getXLSXTestNames(fitType, data as WorkBook)
 }
 
 const isInPairs = (name: string, pairs: Tuple[]) => (
@@ -51,15 +86,21 @@ export const PairSelection: React.FC<PairSelectionProps> = ({ label, selectedPai
   const classes = useStyles()
 
   const fileType: FileType | undefined = useSelector((state: RootState) => state.options.fileType)
-  const data: string[][] | undefined = useSelector((state: RootState) => fileType ? state.options[FileType.CSV].selectedData : undefined)
+  const data: CSVFile | WorkBook | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].selectedData : undefined)
+
+  const fitType: FitType = useSelector((state: RootState) => state.options.fitType)
 
   const [selectedNames, setSelectedNames] = useState<string[]>([])
 
-  if (data === undefined) {
+  useEffect(() => {
+    setSelectedNames([])
+  }, [fitType])
+
+  if (fileType === undefined  || data === undefined) {
     return null
   }
 
-  const names: string[] = getTestNames(data)
+  const names: string[] = getNames(fileType, fitType, data)
 
   const canSelect: boolean = selectedNames.length < 2
 

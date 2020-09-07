@@ -12,6 +12,8 @@ import { Button } from '@material-ui/core';
 import { useStyles } from './styles';
 import { Tuple, PairSelection } from '../../global/inputs/pair_selection';
 import { FileType } from '../../../store/options_slice';
+import { getFileStringByType, CSVFile, hasReplicates } from '../../../utils/csv_file_helpers';
+import { WorkBook } from 'xlsx/types';
 
 export interface ComparisonAnalysisOptions {
   components: number | null,
@@ -27,7 +29,6 @@ const defaultComparisonAnalysisOptions: ComparisonAnalysisOptions = {
 
 export const ComparisonAnalysisOptionsForm: React.FC<GeneralOptionProps> = (props: GeneralOptionProps) => {
   
-  console.log('ComparisonAnalysisOptionsForm')
   const classes = useStyles()
 
   const {
@@ -38,19 +39,21 @@ export const ComparisonAnalysisOptionsForm: React.FC<GeneralOptionProps> = (prop
   const [state, setState] = useState<ComparisonAnalysisOptions>(defaultComparisonAnalysisOptions)
 
   const fileType: FileType | undefined = useSelector((state: RootState) => state.options.fileType)
-  const selectedDataFile: string | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].file : undefined)
+  const selectedData: CSVFile | WorkBook | undefined = useSelector((state: RootState) => fileType ? state.options[fileType].selectedData : undefined)
 
   const flowStepperContext: FlowStepperState = useFlowStepperContext()
 
-  console.log('selectedDataCsv', selectedDataFile)
-
   const onSubmit = async () => {
-    if (selectedDataFile !== undefined) {
+    if (selectedData !== undefined && fileType !== undefined) {
+
+      const hasXlsxReplicates: boolean = fileType === FileType.XLSX ? hasReplicates(selectedData as WorkBook) : false
+      const fileString: string = getFileStringByType(fileType, selectedData)
 
       const body = {
         fileType,
         fitType,
-        data: selectedDataFile,
+        hasXlsxReplicates,
+        data: fileString,
         cosinorType,
         n_components: state.components ?? [1,2,3],
         period: state.period,
@@ -100,6 +103,8 @@ export const ComparisonAnalysisOptionsForm: React.FC<GeneralOptionProps> = (prop
   }
 
   const disabled: boolean = state.pairs.length === 0
+    || selectedData === undefined
+    || fileType === undefined
 
   return <div>
     {cosinorType === CosinorType.COSINOR && <SelectInput

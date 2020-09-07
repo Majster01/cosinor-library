@@ -15,7 +15,6 @@ export const UploadFile: React.FC<UploadFileProps> = (props: UploadFileProps) =>
 
   const refIsDefined: boolean = inputRef.current !== null
 
-  console.log('inputRef.current', inputRef.current)
   useEffect(() => {
     if (inputRef.current !== null)
       inputRef.current.accept = '.csv,.xlsx'

@@ -65,19 +65,19 @@ export interface RequestStatusHandlerResponse {
 export type GetCosinorDataResponse = DataFramePoint[]
 
 export const runPeriodogramAnalysis = async (body: any): Promise<PythonResponse> => {
-  const response: AxiosResponse<PythonResponse> = await axios.post('/v1/periodogram', body, { timeout: 20000 })
+  const response: AxiosResponse<PythonResponse> = await axios.post('/v1/periodogram', body, { timeout: 2000000 })
 
   return response.data
 }
 
 export const runFitGroupIndependentAnalysis = async (body: any): Promise<PythonResponse> => {
-  const response: AxiosResponse<PythonResponse> = await axios.post('/v1/fit-group-independent', body, { timeout: 20000 })
+  const response: AxiosResponse<PythonResponse> = await axios.post('/v1/fit-group-independent', body, { timeout: 2000000 })
 
   return response.data
 }
 
 export const runComparisonAnalysis = async (body: any): Promise<PythonResponse> => {
-  const response: AxiosResponse<PythonResponse> = await axios.post('/v1/comparison', body, { timeout: 20000 })
+  const response: AxiosResponse<PythonResponse> = await axios.post('/v1/comparison', body, { timeout: body.pairs.length * 200000 })
 
   return response.data
 }
@@ -107,12 +107,9 @@ export const poolForRequestStatus = async (uuid: string): Promise<RequestStatusH
 }
 
 export const generateTestData = async (body: GenerateDataBody): Promise<ParseResult<string[]>> => {
-  console.log('BODY', body)
   const response: AxiosResponse<string> = await axios.post('/v1/generate-data', body)
 
   const csvString =  response.data
-
-  console.log('csvString', csvString)
 
   const parsedCsv: ParseResult<string[]> = parse<string[]>(csvString, {})
 

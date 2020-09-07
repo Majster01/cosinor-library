@@ -6,6 +6,7 @@ import { createBrowserHistory, History } from 'history'
 import { StateType } from 'typesafe-actions'
 
 import optionsSlice from './options_slice'
+import toastSlice from './toast_slice'
 
 type StoreType = Store & {
   dispatch: {}
@@ -13,6 +14,7 @@ type StoreType = Store & {
 
 export const rootReducer = combineReducers({
   options: optionsSlice,
+  toast: toastSlice,
 })
 
 export const history: History = createBrowserHistory()

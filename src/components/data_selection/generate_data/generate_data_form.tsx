@@ -7,6 +7,7 @@ import { SelectMultipleInput, SelectMultipleInputOption } from '../../global/inp
 import { useDispatch } from 'react-redux'
 import { ParseResult, unparse } from 'papaparse'
 import { setCSVMetaData, FileType, setFileType } from '../../../store/options_slice'
+import { CSVFile, getCSVFile } from '../../../utils/csv_file_helpers'
 
 export interface GenerateTestDataOptionsFormData {
   components: number,
@@ -73,12 +74,12 @@ export const GenerateTestDataOptions: React.FC = () => {
     const generatedData: ParseResult<string[]> = await generateTestData(formData)
 
     const data: string[][] = generatedData.data
-    const file: string = unparse(data, { delimiter: '\t'})
+
+    const csvFile: CSVFile = getCSVFile(data)
 
     dispatch(setCSVMetaData({
-      data,
-      selectedData: data,
-      file,
+      data: csvFile,
+      selectedData: csvFile,
     }))
     dispatch(setFileType(FileType.CSV))
   }

@@ -14,8 +14,6 @@ export const EnhancedTableHead = (props: EnhancedTableProps) => {
   const classes = useStyles()
   const {onSelectAllClick, numSelected, rowCount, headerData } = props;
 
-  console.log(numSelected, rowCount)
-
   return (
     <TableHead>
       <TableRow className={classes.header}>

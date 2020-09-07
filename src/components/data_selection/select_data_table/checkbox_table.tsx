@@ -6,7 +6,7 @@ import { useStyles } from './styles'
 import { RootState } from '../../../store/store'
 import { useSelector, useDispatch } from 'react-redux'
 import { DataFileMeta, setCSVMetaData, FileType } from '../../../store/options_slice'
-import { unparse } from 'papaparse'
+import { CSVFile, CSVMeasurements, addCSVMeasurement, removeCSVMeasurement } from '../../../utils/csv_file_helpers'
 
 export const CheckboxTable: React.FC = () => {
   const classes = useStyles()
@@ -14,7 +14,7 @@ export const CheckboxTable: React.FC = () => {
 
   const dispatch = useDispatch()
 
-  const fileData: DataFileMeta<string[][], string> = useSelector((state: RootState) => state.options[FileType.CSV])
+  const fileData: DataFileMeta<CSVFile> = useSelector((state: RootState) => state.options[FileType.CSV])
 
   if (fileData.data === undefined || fileData.selectedData === undefined) {
     return null
@@ -25,18 +25,30 @@ export const CheckboxTable: React.FC = () => {
     selectedData,
   } = fileData
 
-  const rowCount: number = data.length
-  const [headerData, ...tableRows]: string[][] = data
-  const cellCount: number = headerData.length
+  const {
+    header,
+    measurements,
+  }: CSVFile = data
+
+  const {
+    measurements: selectedMeasurements,
+  }: CSVFile = selectedData
+  
+  const cellCount: number = header.length
+  const rowCount: number = Object.keys(measurements).length
 
   const onSelectAllClick = () => {
-    const allRowsAreSelected = tableRows.every((row: string[]) => selectedData.includes(row))
+    const allRowsAreSelected = Object.keys(measurements).every(checkIsSelected)
 
     if (allRowsAreSelected) {
-      const selected: string[][] = [data[0]]
+
+      const selectedFile: CSVFile = {
+        header,
+        measurements: {}
+      }
 
       dispatch(setCSVMetaData({
-        selectedData: selected,
+        selectedData: selectedFile,
       }))
     } else {
       dispatch(setCSVMetaData({
@@ -45,57 +57,50 @@ export const CheckboxTable: React.FC = () => {
     }
   }
 
-  const onSelect = (row: string[]) => {
-    const isSelected = checkIsSelected(row)
-
+  const onSelect = (key: string) => {
+    const isSelected = checkIsSelected(key)
+    
     if (!isSelected) {
-      console.log('NOT SELECTED', selectedData, data)
-      const selected: string[][] = data.reduce((selectedRows: string[][], currentRow: string[]) => {
-        console.log('row is selected', checkIsSelected(currentRow), currentRow)
-        if (currentRow === row || checkIsSelected(currentRow)) {
-          return [...selectedRows, currentRow]
-        }
-
-        return selectedRows
-      }, [data[0]])
-
-      const selectedFile: string = unparse(selected, { delimiter: '\t'})
-
+      
+      const selected: CSVMeasurements = addCSVMeasurement(key, measurements[key], selectedMeasurements)
 
       dispatch(setCSVMetaData({
-        selectedData: selected,
-        file: selectedFile,
+        selectedData: ({
+          header,
+          measurements: selected
+        }),
       }))
     } else {
-      const selected: string[][] = selectedData.filter((currentRow: string[]) => currentRow !== row)
-      
-      const selectedFile: string = unparse(selected, { delimiter: '\t'})
+
+      const selected: CSVMeasurements = removeCSVMeasurement(key, selectedMeasurements)
 
       dispatch(setCSVMetaData({
-        selectedData: selected,
-        file: selectedFile,
+        selectedData: ({
+          header,
+          measurements: selected
+        }),
       }))
     }
   }
 
-  const checkIsSelected = (row: string[]) => selectedData.includes(row)
+  const checkIsSelected = (key: string) => selectedMeasurements[key] !== undefined && selectedMeasurements[key].length > 0
 
   return (
     <div className={classes.root}>
       <Table className={classes.table} aria-label="simple table">
         <EnhancedTableHead
-          headerData={headerData}
+          headerData={header}
           rowCount={rowCount}
-          numSelected={selectedData.length}
+          numSelected={Object.keys(selectedMeasurements).length}
           onSelectAllClick={onSelectAllClick}
         />
         <TableBody className={classes.tableBody}>
-          {tableRows.map((rowData: string[], i: number) => (
+          {Object.keys(measurements).map((key: string) => (
             <EnhancedTableRow
-              key={i}
-              isSelected={checkIsSelected(rowData)}
+              measurementKey={key}
+              isSelected={checkIsSelected(key)}
               onSelect={onSelect}
-              values={rowData}
+              values={measurements[key]}
               cellsCount={cellCount}
             />
           ))}

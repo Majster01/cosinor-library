@@ -20,7 +20,6 @@ export const useGetOptionsHook = (): JSX.Element | null => {
   const cosinorCommand: CosinorCommand = useSelector((state: RootState) => state.options.command)
   const fitType: FitType = useSelector((state: RootState) => state.options.fitType)
 
-  console.log('cosinorCommand', cosinorCommand)
   if (cosinorCommand === CosinorCommand.PERIODOGRAM && cosinorType === CosinorType.COSINOR) {
     return <PeriodogramOptionsForm cosinorType={cosinorType} cosinorCommand={cosinorCommand} fitType={fitType} onOptionsSubmit={onSubmit} />
   }
