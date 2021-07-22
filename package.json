@@ -39,7 +39,7 @@
     "typesafe-actions": "^5.1.0",
     "typescript": "~3.7.2",
     "use-async-effect": "^2.2.2",
-    "xlsx": "^0.16.6"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "start": "react-scripts start",
